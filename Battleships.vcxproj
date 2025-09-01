@@ -127,11 +127,13 @@
     <ClCompile Include="Battleships.cpp" />
     <ClCompile Include="Coord.cpp" />
     <ClCompile Include="GameBoard.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Ship.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Coord.h" />
     <ClInclude Include="GameBoard.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Ship.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

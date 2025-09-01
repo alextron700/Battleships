@@ -9,7 +9,7 @@ public:
 	Coord(std::string pos);
 	int getX();
 	int getY();
-	std::string getPosUI(int posX, int posY);
+	static std::string getPosUI(int posX, int posY, Coord&c);
 	bool getValid();
 	// this was an addition I did not expect I needed, I relied on artificial sources, due to not
 	// knowing how to handle the error this fixed. 

@@ -25,10 +25,10 @@ GameBoard::GameBoard(vector<Ship>& allShips, string boardID) {
 		{"~","~","~","~","~","~","~","~","~","~"},
 		{"~","~","~","~","~","~","~","~","~","~"}
 	};
-	_playerHits = {};
-	_playerMisses = {};
-	_allOccupiedSpaces = calcAllOccupiedSpaces(allShips);
+	
 	_boardID = boardID;
+	_GB = Player();
+	_allOccupiedSpaces = Player::calcAllOccupiedSpaces(allShips);
 }
 // these getPlayerHitIndex and getPlayerMissIndex are designed for an iterator to display a list
 // if an error occurs, you get the error coordinate
@@ -36,37 +36,9 @@ string GameBoard::getBoardID()
 {
 	return _boardID;
 }
-Coord GameBoard::getPlayerHitIndex(int index) 
-{
-	if (index < _playerHits.size()) 
-	{
-		return _playerHits[index];
-	}
-		return Coord(-1, -1);
-}
-Coord GameBoard::getPlayerMissIndex(int index) 
-{
-	if (index < _playerMisses.size()) 
-	{
-		return _playerMisses[index];
-	}
-	return Coord(-1, -1);
-}
+
 // getAIhits and getAIMisses return the whole list, since the AI is likely to need the whole list.
-vector<Coord> GameBoard::calcAllOccupiedSpaces(vector<Ship>& allShips)
-{
-	
-		vector<Coord> OccupiedSpaces = {};
-		// this takes all the spaces occupied by ships into a vector
-		for (int i = 0; i < allShips.size(); i++)
-		{
-			vector<Coord> Occu = allShips[i].getOccupiedCoords();
-			for (int j = 0; j < allShips[i].getOccupiedCoords().size(); j++) {
-				OccupiedSpaces.push_back(Occu[j]);
-			}
-		}
-		return OccupiedSpaces;
-}
+
 vector<Coord> GameBoard::getAllOccupiedSpaces() 
 {
 	return _allOccupiedSpaces;
@@ -76,50 +48,37 @@ vector<Coord> GameBoard::getAllOccupiedSpaces()
 //OUTPUTS: None (none)
 //Depends on: Coord class, ship class, getAllOccupiedSpaces
 //This automatically does hit checking, adding it to a list as appropriate
-bool GameBoard::AddPlayerShell(Coord Pos, vector<Ship>& allShips) 
-{
-	int index = -1;
-	vector<Coord> OccupiedSpaces = _allOccupiedSpaces;
-	for (int i = 0; i < OccupiedSpaces.size(); i++) 
-	{
-		if (OccupiedSpaces[i] == Pos)
-		{
-			index = i;
-			break;
-		}
-	}
-	if (index >= 0)
-	{
-	
-			_playerHits.push_back(Pos);
-		
-		
-	}
-	else 
-	{
-	
-			_playerMisses.push_back(Pos);
-	
-		
-	}
-	return false;
-	
-}
+
 // note: Depends on AddPlayerShell()
-void GameBoard::prepareDisplayBoard(bool playerBoard)
-{
-	if(playerBoard)
-	{ 
-		// this requires repitition. We are indexing through lists of differing sizes.
-		for(int i = 0; i < _playerMisses.size(); i++)
-		{
-			_gameState[_playerMisses[i].getX()][_playerMisses[i].getY()] = "X";
-		}
-		for (int i = 0; i < _playerHits.size(); i++)
-		{
-			_gameState[_playerHits[i].getX()][_playerHits[i].getY()] = "h";
-		}
+void GameBoard::prepareDisplayBoard(Player* opponent)
+{	
+	if(opponent == NULL)
+	{
+		return;
 	}
+	_gameState = {
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"},
+		{"~","~","~","~","~","~","~","~","~","~"}
+	};
+
+		// this requires repetition. We are indexing through lists of differing sizes.
+		for(int i = 0; i < opponent->getPlayerMisses().size(); i++)
+		{
+			_gameState[opponent->getPlayerMisses()[i].getX()][opponent->getPlayerMisses()[i].getY()] = "X";
+		}
+		for (int i = 0; i < opponent->getPlayerHits().size(); i++)
+		{
+			_gameState[opponent->getPlayerHits()[i].getX()][opponent->getPlayerHits()[i].getY()] = "h";
+		}
+	
 	
 }
 void GameBoard::addShips(vector<Ship>& allShips)
@@ -132,7 +91,7 @@ void GameBoard::addShips(vector<Ship>& allShips)
 		{"A","a"}
 	};
 	vector<Coord> hitList;
-		hitList = _playerHits;
+		hitList = _GB.getPlayerHits();
 	
 	for (int i = 0; i < allShips.size(); i++)
 	{
@@ -184,71 +143,11 @@ Depends on: getOccupiedCoords()
 Checks if two or more ships occupy the same space
 */
 
-vector<Ship> GameBoard::playerUI()
+
+void GameBoard::drawBoard(vector<Ship>& allShips, GameBoard& g, Player* opponent)
 {
-	
-	//std::cout << "you will get to view the board once you've placed all your ships, and I do some validating." << endl;
+	g.prepareDisplayBoard(opponent);
+	g.addShips(allShips);
+	g.displayBoard();
 
-	string ShipToSpawn;
-	vector<Ship> allShips = {};
-	set<string> setOfAllShips = {};
-
-	while (allShips.size() < 5) {
-		string pos;
-		std::cout << "Begin by positioning your ships, with an X position (0-9), and a Y position (A-J)" << endl;
-		std::cout << "Examples Of Valid Coordinates are: d5, E9, 2B, 0a. Examples of Invalid Coordinates: 2k, 12b, b-1, -3B" << endl;
-		std::cout << "This is what your board looks like: (by the way, you should enter a coordinate now)" << endl;
-		addShips(allShips);
-		displayBoard();
-		std::getline(cin, pos);
-		Coord shipPos = Coord(pos);
-		if (!shipPos.getValid()) {
-			std::cout << "Nice Try!" << endl;
-			continue;
-		}
-		std::cout << "Pick an orientation: (Valid inputs are: | or -) " << endl;
-		string hdg;
-		bool shipDir;
-		std::getline(cin, hdg);
-		if (hdg == "|") {
-			shipDir = false;
-		}
-		else if (hdg == "-") {
-			shipDir = true;
-		}
-		else {
-			std::cout << "The only valid inputs are: | or -" << endl;
-			continue;
-		}
-		std::cout << "Now pick a type of ship Valid Selections are: P (patrol boat), S (submarine), C (Cruiser), B (Battleship), A (carrier). You'll need one of each." << endl;
-		std::cout << " I won't let you proceed until you've place all five ships. If you try to place two of the same ship, I won't let you. Note: You MUST use CAPITALS." << endl;
-		std::getline(cin, ShipToSpawn);
-		if (Ship::isValidType(ShipToSpawn) && setOfAllShips.find(ShipToSpawn) == setOfAllShips.end()) {
-			setOfAllShips.insert(ShipToSpawn);
-			allShips.push_back(Ship(ShipToSpawn, shipPos.getX(), shipPos.getY(), shipDir));
-		}
-		else
-		{
-			std::cout << "Nice Try!" << endl;
-			continue;
-		}
-
-
-
-		//std::cout << " You have placed all five ships. Allow me to check nothing's wrong with your layout" << endl;
-	   if(!Ship::validateShips(allShips))
-	   {
-		   cout << "Invalid configuration detected!" << endl;
-		   return { Ship("Error",-1,-1, false) };
-	   }
-		std::cout << "good news: your setup is valid! I will draw your layout now." << endl;
-		prepareDisplayBoard(true);
-		addShips(allShips);
-		displayBoard();
-	
-		// TEST LAYOUT: Patrol: D2 |, Submarine: E5 -, Cruiser: F8 | Battleship: D5 | cArrier: I5 -
-		// use the above for testing
-	}
-	_allShips = allShips;
-	return allShips;
 }

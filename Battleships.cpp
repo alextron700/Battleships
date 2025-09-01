@@ -10,6 +10,7 @@
 #include <map>
 #include "Coord.h"
 #include "GameBoard.h"
+#include "Player.h"
 using namespace std;
 // the system is supposed to be simple. 
 vector<Ship> decodePassword(string password)
@@ -38,7 +39,7 @@ string encodePassword(vector<Ship> Ships)
 	{
 		output += Ships[i].getType();
 		Coord shipPos = Coord(Ships[i].getXpos(), Ships[i].getYpos());
-		output += shipPos.getPosUI(shipPos.getX(), shipPos.getY());
+		output += Coord::getPosUI(shipPos.getX(), shipPos.getY(), shipPos);
 		if (Ships[i].getFacing())
 		{
 			output += 'X';
@@ -94,11 +95,12 @@ int main()
 	
 	string savedPassword;
 	
-	GameBoard player = GameBoard(allShips, "Player");
+	GameBoard GB = GameBoard(allShips, "Player");
 	allShips = handlePassword();
+	Player POne = Player();
 	if (!allShips.size() > 0) 
 	{
-		allShips = player.playerUI();
+		allShips = GB.GBUI();
 	}
 	if (allShips[0].getType() == "Error")
 	{
@@ -112,14 +114,13 @@ int main()
 		string EP = encodePassword(allShips);
 		cout << "Your password is: " << EP << endl;
 	}
-	player.prepareDisplayBoard(true);
-	player.addShips(allShips);
-	//player.displayBoard();
-	for (int i = 0; i<player.getAllShips().size(); i++)
-	{
-		cout << player.getAllShips()[i].getType();
-	}
-	player.displayBoard();
+
+	//GB.displayBoard();
+	//for (int i = 0; i<GB.getAllShips().size(); i++)
+	//{
+	//	cout << GB.getAllShips()[i].getType();
+	//}
+	GameBoard::drawBoard(allShips, GB);
 	// Logic needed: AI, win/loss detect, turn system.
 	// Initialise Opponent
 	vector<Ship> AIShips = {};
@@ -134,6 +135,50 @@ int main()
 	"P2DYS6FXA4IYB7GXC4BY"
 	};
 	AIShips = decodePassword(potentialPositions[rand() % potentialPositions.size()]);
+	Player PTwo = Player();
+	bool GBTurn = true; 
+	int GBShipHP = 0;
+	int AIShipHP = 0;
+	
+	while (true) {
+		for (int i = 0; i < allShips.size(); i++)
+		{
+			GBShipHP += allShips[i].getHealth();
+		}
+		for (int i = 0; i < AIShips.size(); i++)
+		{
+			AIShipHP += AIShips[i].getHealth();
+		}
+		if (GBShipHP <= 0)
+		{
+			cout << "AI Wins!" << endl;
+			return 0xA1;
+		}
+		if (AIShipHP <= 0)
+		{
+			cout << "Player Wins!" << endl;
+			return 0x97A7E12;
+		}
+		if (GBTurn)
+		{
+			GameBoard::drawBoard(allShips, GB, &PTwo);
+			POne.PlayerShellUI(AIShips, "Player");
+			GBTurn = false;
+		}
+		else
+		{
+			//AI's move.
+			Coord AIShot = Coord(rand() % 10, rand() % 10);
+			//cout << Coord::getPosUI(AIShot.getX(), AIShot.getY(), AIShot) << endl;
+			PTwo.AddPlayerShell(AIShot, allShips);
+			//cout << "updatedBoard" << endl;
+			//GameBoard::drawBoard(allShips, GB);
+			GBTurn = true;
+
+		}
+		GBShipHP = 0;
+		AIShipHP = 0;
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

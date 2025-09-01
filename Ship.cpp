@@ -157,7 +157,6 @@ Depends on: None
 Returns a list of spaces a ship occupies.
 */
 std::vector<Coord> Ship::getOccupiedCoords()
-
 {
 
 	vector<Coord> output = {};

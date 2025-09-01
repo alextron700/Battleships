@@ -93,7 +93,7 @@ OUTPUTS: Position (String)
 Depends on: None
 turns a given pair of coordinates to a human readable form.
 */
-string Coord::getPosUI(int posX, int posY)
+string Coord::getPosUI(int posX, int posY, Coord&c)
 {
 	string output;
 	const string posRef = "ABCDEFGHIJ";
@@ -104,7 +104,7 @@ string Coord::getPosUI(int posX, int posY)
 	output += std::to_string(posX);
 	output += posRef[posY];
 	cout << output << endl;
-	if (_isValid) 
+	if (c._isValid) 
 	{
 		return output;
 	}
