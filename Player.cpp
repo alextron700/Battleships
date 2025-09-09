@@ -18,6 +18,18 @@ Player::Player()
 		"~~~~~~~~~~",
 		"~~~~~~~~~~"
 	};
+	_gameState = {
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~",
+		"~~~~~~~~~~"
+	};
 
 }
 //CalcAllOccupiedSpaces
@@ -33,18 +45,75 @@ vector<Coord> Player::calcAllOccupiedSpaces(vector<Ship>& allShips)
 	for (int i = 0; i < allShips.size(); i++)
 	{
 		vector<Coord> Occu = allShips[i].getOccupiedCoords();
-		for (int j = 0; j < allShips[i].getOccupiedCoords().size(); j++) {
+		for (int j = 0; j < Occu.size(); j++) {
 			OccupiedSpaces.push_back(Occu[j]);
 		}
 	}
 	return OccupiedSpaces;
+}
+// determines which side has won, if a win is even detected
+int Player::determineWin(vector<Ship> p1Ships, vector<Ship> p2Ships)
+{
+	int GBHPsum = 0;
+	int AIHPsum = 0;
+	for (int i = 0; i < p1Ships.size(); i++)
+	{
+		GBHPsum += p1Ships[i].getHealth();
+	}
+	for (int i = 0; i < p2Ships.size(); i++)
+	{
+		AIHPsum += p2Ships[i].getHealth();
+	}
+	if (GBHPsum <= 0)
+	{
+		return -1;
+	}
+	if (AIHPsum <= 0)
+	{
+		return 1;
+	}
+	return 0;
+}
+// the main function used to put ships on a board for an AI opponent
+void Player::placeAIShips(vector<Ship> listOfShips)
+{
+	for (int j = 0; j < listOfShips.size(); j++) {
+		vector<Coord> occupiedSpaces = calcAllOccupiedSpaces(listOfShips);
+		for (int i = 0; i < occupiedSpaces.size(); i++)
+		{
+			if (i + 1 > listOfShips[j].getLength() && j + 1 < listOfShips.size())
+			{
+				j++;
+			}
+			if (_gameState[occupiedSpaces[i].getX()][occupiedSpaces[i].getY()] == '~')
+			{
+				_gameState[occupiedSpaces[i].getX()][occupiedSpaces[i].getY()] = listOfShips[j].getType()[0];
+			}
+		}
+	}
+}
+void Player::addAtPos(Coord position, char thing)
+{
+	_gameState[position.getX()][position.getY()] = thing;
+}
+vector<string> Player::getGameState()
+{
+	return _gameState;
+}
+void Player::addHit(Coord pos)
+{
+	_GBHits.push_back(pos);
+}
+void Player::addMiss(Coord pos)
+{
+	_GBMisses.push_back(pos);
 }
 //AddPLayerShell
 //INPUTS: Pos (Coord), allShips(vector<Ship>&)
 //OUTPUTS: Bool
 // Depends on: calcAllOccupiedSpaces()
 // Automatically determines if a shell is a hit or miss, and puts it in the respective list
-bool Player::AddPlayerShell(Coord Pos, vector<Ship>& allShips)
+int Player::checkHit(Coord Pos, vector<Ship>& allShips)
 {
 	int index = -1;
 	vector<Coord> OccupiedSpaces = calcAllOccupiedSpaces(allShips);
@@ -59,18 +128,16 @@ bool Player::AddPlayerShell(Coord Pos, vector<Ship>& allShips)
 	if (index >= 0)
 	{
 
-		_GBHits.push_back(Pos);
-		return true;
+		//_GBHits.push_back(Pos);
+		return index;
 
 	}
-	else
-	{
 
-		_GBMisses.push_back(Pos);
+		//_GBMisses.push_back(Pos);
 
 
-	}
-	return false;
+	
+	return index;
 
 }
 // getPlayerHits and getPlayerMisses
@@ -116,6 +183,31 @@ bool Player::coordIsUnique(Coord input)
 {
 	return (find(_GBHits.begin(), _GBHits.end(), input) == _GBHits.end()) && (find(_GBMisses.begin(), _GBMisses.end(), input) == _GBMisses.end());
 }
+//for(int i = 0; i < allShips.size(); i++)
+	//{
+		// I leave this here, because It's a good showing of my thinking, and figuing out an improvement
+		// if (allShips[i].hitCheck(shell.getX(), shell.getY()) && coordIsUnique(shell))
+		//{ 
+		//	allShips[i].hit(shell.getX(), shell.getY());
+		//	cout << "Hit!" << endl;
+		//	checkHit(shell,allShips);
+		//	if(allShips[i].getHealth() == 0)
+		//	{
+		//		cout << "Sank Opponent's " << convertShipID.at(allShips[i].getType()) << "!" <<endl;
+		//	}
+		//	return 0;
+		//}else if(!coordIsUnique(shell))
+	//	{
+		//	cout << "Looks like you tried to enter a duplicate coordinate. try again!" << endl;
+		//Player::PlayerShellUI(allShips);
+		//	return 0;
+		//}
+		//else
+		//{
+		//	cout << "Miss!" << endl;
+		//	checkHit(shell, allShips);
+		//	return -1;
+		//}
 int Player::PlayerShellUI(vector<Ship>& allShips, string GBID = "P1")
 {
 	map<string, string> convertShipID = {
@@ -132,64 +224,114 @@ int Player::PlayerShellUI(vector<Ship>& allShips, string GBID = "P1")
 	string GBShellInput;
 	getline(cin, GBShellInput);
 	Coord shell = Coord(GBShellInput);
-	
-	for(int i = 0; i < allShips.size(); i++)
-	{
-		// I leave this here, because It's a good showing of my thinking, and figuing out an improvement
-		// if (allShips[i].hitCheck(shell.getX(), shell.getY()) && coordIsUnique(shell))
-		//{ 
-		//	allShips[i].hit(shell.getX(), shell.getY());
-		//	cout << "Hit!" << endl;
-		//	AddPlayerShell(shell,allShips);
-		//	if(allShips[i].getHealth() == 0)
-		//	{
-		//		cout << "Sank Opponent's " << convertShipID.at(allShips[i].getType()) << "!" <<endl;
-		//	}
-		//	return 0;
-		//}else if(!coordIsUnique(shell))
-	//	{
-		//	cout << "Looks like you tried to enter a duplicate coordinate. try again!" << endl;
-		//Player::PlayerShellUI(allShips);
-		//	return 0;
-		//}
-		//else
-		//{
-		//	cout << "Miss!" << endl;
-		//	AddPlayerShell(shell, allShips);
-		//	return -1;
-		//}
-		if(coordIsUnique(shell))
+	int index = checkHit(shell, allShips);
+		if(coordIsUnique(shell) && shell.getValid())
 		{
-			if (AddPlayerShell(shell, allShips)) 
+			if (index >= 0 ) 
 			{
-				allShips[i].hit(shell.getX(), shell.getY());
+				for (int j = 0; j < allShips.size(); j++)
+				{
+					vector<Coord> Temp = allShips[j].getOccupiedCoords();
+					if (find(Temp.begin(), Temp.end(), shell) != Temp.end())
+					{
+						allShips[j].hit(shell.getX(), shell.getY());
+						break;
+					}
+				}
 				cout << "Hit!" << endl;
-				//if (allShips[i].getHealth() == 0)
-				//{
-				//	cout << "Sank Opponent's " << convertShipID.at(allShips[i].getType()) << "!" << endl;
-				//}
-				return 0;
+				_GBHits.push_back(shell);
+				return 1;
 			}
 			else
 			{
 				std::cout << "Miss!" << endl;
-				AddPlayerShell(shell, allShips);
+				_GBMisses.push_back(shell);
 				return -1;
 			}
 		}
 		else
 		{
 			cout << "Looks like you tried to enter a duplicate coordinate. try again!" << endl;
-			Player::PlayerShellUI(allShips);
+			Player::PlayerShellUI(allShips,GBID);
 			return 0;
+		}
+	
+	
+}
+vector<Ship> Player::decodePassword(string password)
+{
+	vector<Ship> decodedShips;
+	string CoordDecoding;
+	for (int i = 0; i < password.size(); i += 4)
+	{
+
+		CoordDecoding = string(1, password[i + 1]) + password[i + 2];
+		Coord decodedCoord = Coord(CoordDecoding);
+		if (Ship::isValidType(string(1, password[i]))) {
+			decodedShips.push_back(Ship(string(1, password[i]), decodedCoord.getX(), decodedCoord.getY(), password[i + 3] == 'X'));
+		}
+		else
+		{
+			return { Ship("Error", -1,-1, false) };
+		}
+	}
+	return decodedShips;
+}
+string Player::encodePassword(vector<Ship> Ships)
+{
+	string output;
+	for (int i = 0; i < Ships.size(); i++)
+	{
+		output += Ships[i].getType();
+		Coord shipPos = Coord(Ships[i].getXpos(), Ships[i].getYpos());
+		output += Coord::getPosUI(shipPos.getX(), shipPos.getY(), shipPos);
+		if (Ships[i].getFacing())
+		{
+			output += 'X';
+		}
+		else
+		{
+			output += 'Y';
+		}
+
+	}
+	return output;
+}
+vector<Ship> Player::handlePassword()
+{
+	string password;
+	bool isEnteringPassword = true;
+	vector<Ship> allShips;
+	while (isEnteringPassword) {
+		cout << "A password allows you to save and load a previous board layout. type a password below to use one, then ENTER to confirm, OR just press ENTER to skip." << endl;
+		cout << "if there are any spaces before, after or anywhere in the password, make sure to remove them before continuing" << endl;
+		allShips = {};
+
+		getline(cin, password);
+		if (password.size() > 2)
+		{
+			allShips = decodePassword(password);
+			if (Ship::validateShips(allShips))
+			{
+				cout << "Password validated successfully!" << endl;
+				return allShips;
+			}
+			else
+			{
+				cout << "Bad Password!" << endl;
+				continue;
+			}
+		}
+		else
+		{
+
+			isEnteringPassword = false;
 		}
 
 
 
-
-
 	}
-	
+	return allShips;
 }
 vector<Ship> Player::GBUI()
 {
@@ -205,8 +347,8 @@ vector<Ship> Player::GBUI()
 		std::cout << "Begin by positioning your ships, with an X position (0-9), and a Y position (A-J)" << endl;
 		std::cout << "Examples Of Valid Coordinates are: d5, E9, 2B, 0a. Examples of Invalid Coordinates: 2k, 12b, b-1, -3B" << endl;
 		std::cout << "This is what your board looks like: (by the way, you should enter a coordinate now)" << endl;
-		addShips(allShips);
-		displayBoard();
+		this->placeAIShips(allShips);
+		this->displayBoard({"Null"});
 		std::getline(cin, pos);
 		Coord shipPos = Coord(pos);
 		if (!shipPos.getValid()) {
@@ -249,12 +391,35 @@ vector<Ship> Player::GBUI()
 			return { Ship("Error",-1,-1, false) };
 		}
 		std::cout << "good news: your setup is valid! I will draw your layout now." << endl;
-		addShips()
 		
-
+		
+		
+		//P2DYS5EXCF8YA5IX
 		// TEST LAYOUT: Patrol: D2 |, Submarine: E5 -, Cruiser: F8 | Battleship: D5 | cArrier: I5 -
 		// use the above for testing
 	}
-	_allShips = allShips;
+	// reset the player's view of their own board, so that main can write the state.
+	_gameState = { "~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~" };
 	return allShips;
+}
+void Player::displayBoard(vector<string> gameStateInstance = {"Null"})
+{
+	cout << "  ABCDEFGHIJ" << endl;
+	const string Xref = "0123456789";
+	string out = "";
+	for (int i = 0; i < Xref.size(); i++)
+	{
+		out = "";
+		out += Xref[i];
+		out += " ";
+		if(gameStateInstance != vector<string>{"Null"})
+		{
+			out += gameStateInstance[i];
+		}
+		else 
+		{
+			out += _gameState[i];
+		}
+		cout << out << endl;
+	}
 }

@@ -19,6 +19,8 @@ Coord::Coord(int Xpos, int Ypos) {
 // and the current state is invalid, we can technically fulfill the reqirement, while signal
 Coord::Coord(string pos) 
 {
+	_posX = -1;
+	_posY = -1;
 	if (pos.length() != 2) 
 	{
 		_isValid = false;
@@ -99,7 +101,7 @@ string Coord::getPosUI(int posX, int posY, Coord&c)
 	const string posRef = "ABCDEFGHIJ";
 	if (posY > 9 || posX > 9 || posY < 0 || posX < 0) 
 	{
-		return NULL; // Keep position checks in bounds
+		return "Error"; // Keep position checks in bounds
 	}
 	output += std::to_string(posX);
 	output += posRef[posY];

@@ -13,19 +13,6 @@ using namespace std;
 // Depends on: None
 // initialises game board
 GameBoard::GameBoard(vector<Ship>& allShips, string boardID) {
-	_gameState = {
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"}
-	};
-	
 	_boardID = boardID;
 	_GB = Player();
 	_allOccupiedSpaces = Player::calcAllOccupiedSpaces(allShips);
@@ -49,46 +36,35 @@ vector<Coord> GameBoard::getAllOccupiedSpaces()
 //Depends on: Coord class, ship class, getAllOccupiedSpaces
 //This automatically does hit checking, adding it to a list as appropriate
 
-// note: Depends on AddPlayerShell()
+// note: Depends on checkHit()
 void GameBoard::prepareDisplayBoard(Player* opponent)
 {	
 	if(opponent == NULL)
 	{
 		return;
 	}
-	_gameState = {
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"},
-		{"~","~","~","~","~","~","~","~","~","~"}
-	};
+	
 
 		// this requires repetition. We are indexing through lists of differing sizes.
 		for(int i = 0; i < opponent->getPlayerMisses().size(); i++)
 		{
-			_gameState[opponent->getPlayerMisses()[i].getX()][opponent->getPlayerMisses()[i].getY()] = "X";
+			_GB.addAtPos(Coord(opponent->getPlayerMisses()[i].getX(),opponent->getPlayerMisses()[i].getY()),'X');
 		}
 		for (int i = 0; i < opponent->getPlayerHits().size(); i++)
 		{
-			_gameState[opponent->getPlayerHits()[i].getX()][opponent->getPlayerHits()[i].getY()] = "h";
+			_GB.addAtPos(Coord(opponent->getPlayerHits()[i].getX(), opponent->getPlayerHits()[i].getY()), 'h');
 		}
 	
 	
 }
 void GameBoard::addShips(vector<Ship>& allShips)
 {
-	const map<string, string> hitRef = {
-		{"P","p"},
-		{"S","s"},
-		{"C","c"},
-		{"B","b"},
-		{"A","a"}
+	const map<string, char> hitRef = {
+		{"P",'p'},
+		{"S",'s'},
+		{"C",'c'},
+		{"B",'b'},
+		{"A",'a'}
 	};
 	vector<Coord> hitList;
 		hitList = _GB.getPlayerHits();
@@ -102,36 +78,20 @@ void GameBoard::addShips(vector<Ship>& allShips)
 			Coord CurrentCoord = shipOccu[j];
 			//cout <<"X"<< CurrentCoord.getX() <<"Y" << CurrentCoord.getY() <<"type" <<allShips[i].getType()<< endl;
 
-					if(find(hitList.begin(), hitList.end(),CurrentCoord) != hitList.end())
+					if(_GB.getGameState()[CurrentCoord.getX()][CurrentCoord.getY()] == 'h')
 					{
-						_gameState[CurrentCoord.getX()][CurrentCoord.getY()] = hitRef.at(allShips[i].getType());
+						_GB.addAtPos(Coord(CurrentCoord.getX(),CurrentCoord.getY()),hitRef.at(allShips[i].getType()));
 					}
 					else 
 					{
-						_gameState[CurrentCoord.getX()][CurrentCoord.getY()] = allShips[i].getType();
+						_GB.addAtPos(Coord(CurrentCoord.getX(), CurrentCoord.getY()), allShips[i].getType()[0]);
 					}
 			
 			
 		}
 	}
 }
-void GameBoard::displayBoard()
-{
-	cout << "  ABCDEFGHIJ" << endl;
-	const string Xref = "0123456789";
-	string out = "";
-	for(int i = 0; i < Xref.size(); i++) 
-	{	
-		out = "";
-		out += Xref[i];
-		out += " ";
-		for (int j = 0; j < _gameState[i].size(); j++)
-		{
-			out += _gameState[i][j];
-		}
-		cout << out << endl;
-	}
-}
+
 vector<Ship> GameBoard::getAllShips()
 {
 	return _allShips;
@@ -144,10 +104,23 @@ Checks if two or more ships occupy the same space
 */
 
 
-void GameBoard::drawBoard(vector<Ship>& allShips, GameBoard& g, Player* opponent)
+bool GameBoard::drawBoard(vector<Ship>& allShips, GameBoard& g, Player* opponent)
 {
 	g.prepareDisplayBoard(opponent);
 	g.addShips(allShips);
-	g.displayBoard();
-
+	if (opponent) 
+	{
+		opponent->displayBoard({"Null"});
+		return true;
+	}
+	return false;
+}
+int GameBoard::setAllShips(vector<Ship> ships)
+{
+	_allShips = ships;
+	return -1;
+}
+vector<string> GameBoard::getLocalGameState()
+{
+	return _GB.getGameState();
 }

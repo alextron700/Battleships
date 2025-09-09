@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <algorithm>
+// represents a single X/Y position on a GameBoard
 using namespace std;
 class Coord
 {

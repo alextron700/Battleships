@@ -11,81 +11,12 @@
 #include "Coord.h"
 #include "GameBoard.h"
 #include "Player.h"
+#include <ctime>
 using namespace std;
-// the system is supposed to be simple. 
-vector<Ship> decodePassword(string password)
+void renderBoard(Player* instance,vector<Ship> allShips, GameBoard& GB, Player* opponent = NULL)
 {
-	vector<Ship> decodedShips;
-	string CoordDecoding;
-	for (int i = 0; i < password.size(); i+=4) 
-	{
-	
-		CoordDecoding = string(1,password[i+1]) + password[i+2];
-		Coord decodedCoord = Coord(CoordDecoding);
-		if (Ship::isValidType(string(1, password[i]))) {
-			decodedShips.push_back(Ship(string(1, password[i]), decodedCoord.getX(), decodedCoord.getY(), password[i + 3] == 'X'));
-		}
-		else
-		{
-			return { Ship("Error", -1,-1, false) };
-		}
-	}
-	return decodedShips;
-}
-string encodePassword(vector<Ship> Ships)
-{
-	string output;
-	for (int i = 0; i < Ships.size(); i++)
-	{
-		output += Ships[i].getType();
-		Coord shipPos = Coord(Ships[i].getXpos(), Ships[i].getYpos());
-		output += Coord::getPosUI(shipPos.getX(), shipPos.getY(), shipPos);
-		if (Ships[i].getFacing())
-		{
-			output += 'X';
-		}else
-		{
-			output += 'Y';
-		}
-		
-	}
-	return output;
-}
-vector<Ship> handlePassword()
-{
-	string password;
-	bool isEnteringPassword = true;
-	vector<Ship> allShips;
-	while (isEnteringPassword) {
-		cout << "A password allows you to save and load a previous board layout. type a password below to use one, then ENTER to confirm, OR just press ENTER to skip." << endl;
-		cout << "if there are any spaces before, after or anywhere in the password, make sure to remove them before continuing" << endl;
-		allShips = {};
-
-		getline(cin, password);
-		if (password.size() > 2)
-		{
-			allShips = decodePassword(password);
-			if (Ship::validateShips(allShips))
-			{
-				cout << "Password validated successfully!" << endl;
-				return allShips;
-			}
-			else
-			{
-				cout << "Bad Password!" << endl;
-				continue;
-			}
-		}
-		else
-		{
-
-			isEnteringPassword = false;
-		}
-
-
-
-	}
-	return allShips;
+	GameBoard::drawBoard(allShips, GB,opponent);
+	instance->displayBoard(GB.getLocalGameState());
 }
 int main()
 {
@@ -96,11 +27,12 @@ int main()
 	string savedPassword;
 	
 	GameBoard GB = GameBoard(allShips, "Player");
-	allShips = handlePassword();
+	allShips = Player::handlePassword();
 	Player POne = Player();
-	if (!allShips.size() > 0) 
+	renderBoard(&POne, allShips,GB,NULL);
+	if (allShips.size() <= 0) 
 	{
-		allShips = GB.GBUI();
+		allShips = POne.GBUI();
 	}
 	if (allShips[0].getType() == "Error")
 	{
@@ -111,18 +43,10 @@ int main()
 	getline(cin, savedPassword);
 	if (savedPassword.size() > 0)
 	{
-		string EP = encodePassword(allShips);
+		string EP = Player::encodePassword(allShips);
 		cout << "Your password is: " << EP << endl;
 	}
 
-	//GB.displayBoard();
-	//for (int i = 0; i<GB.getAllShips().size(); i++)
-	//{
-	//	cout << GB.getAllShips()[i].getType();
-	//}
-	GameBoard::drawBoard(allShips, GB);
-	// Logic needed: AI, win/loss detect, turn system.
-	// Initialise Opponent
 	vector<Ship> AIShips = {};
 	const vector<string> potentialPositions = {
 	"A4GYB6HXC4CYP5DXS5JY",
@@ -132,52 +56,49 @@ int main()
 	"B3FXC6GYS2DXA9EXP1EY",
 	"A1EXB2EXC3EXS4EXP5EX",
 	"P2DYS4FYC9JXB6HXA7FX",
-	"P2DYS6FXA4IYB7GXC4BY"
+	"P2DYS6FXA4IYB7GXC4BY",
+	"P2DXS5EYC8FXB5DXA5IY"
 	};
-	AIShips = decodePassword(potentialPositions[rand() % potentialPositions.size()]);
+	srand(time(0));
+	AIShips = Player::decodePassword(potentialPositions[rand() % potentialPositions.size()]);
 	Player PTwo = Player();
+	GameBoard AIGB = GameBoard(AIShips, "AI");
 	bool GBTurn = true; 
-	int GBShipHP = 0;
-	int AIShipHP = 0;
 	
 	while (true) {
-		for (int i = 0; i < allShips.size(); i++)
+		if(Player::determineWin(allShips,AIShips) == -1)
 		{
-			GBShipHP += allShips[i].getHealth();
+			cout << "AI Win!";
+			return 0;
 		}
-		for (int i = 0; i < AIShips.size(); i++)
+		if (Player::determineWin(allShips, AIShips) == 1)
 		{
-			AIShipHP += AIShips[i].getHealth();
-		}
-		if (GBShipHP <= 0)
-		{
-			cout << "AI Wins!" << endl;
-			return 0xA1;
-		}
-		if (AIShipHP <= 0)
-		{
-			cout << "Player Wins!" << endl;
-			return 0x97A7E12;
+			cout << "Human Win!";
+			return 0;
 		}
 		if (GBTurn)
 		{
-			GameBoard::drawBoard(allShips, GB, &PTwo);
+			renderBoard(&POne, allShips, GB, &PTwo);
 			POne.PlayerShellUI(AIShips, "Player");
 			GBTurn = false;
 		}
 		else
 		{
 			//AI's move.
+
 			Coord AIShot = Coord(rand() % 10, rand() % 10);
-			//cout << Coord::getPosUI(AIShot.getX(), AIShot.getY(), AIShot) << endl;
-			PTwo.AddPlayerShell(AIShot, allShips);
-			//cout << "updatedBoard" << endl;
-			//GameBoard::drawBoard(allShips, GB);
+			cout << Coord::getPosUI(AIShot.getX(), AIShot.getY(), AIShot) << endl;
+			if(PTwo.checkHit(AIShot, allShips) != -1)
+			{
+				PTwo.addHit(AIShot);
+			}else
+			{
+				PTwo.addMiss(AIShot);
+			}
 			GBTurn = true;
 
 		}
-		GBShipHP = 0;
-		AIShipHP = 0;
+	
 	}
 }
 

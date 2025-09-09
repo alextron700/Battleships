@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include "Coord.h"
+// represents a ship on a GameBoard.
 using namespace std;
 
 class Ship
@@ -26,7 +27,7 @@ public:
 	static bool IntersectCheck(vector<Ship>& allShips);
 private:
 	string _type;
-	static inline const const map<string, int> shipLength = {
+	static inline const map<string, int> shipLength = {
 	{"P",2},
 	{"S",3},
 	{"C",3},
