@@ -35,7 +35,7 @@ Coord::Coord(string pos)
 	    // if(pos[0] != colRef[i] && i >= 9){
 		if (colRef.find(pos[0]) == string::npos) 
 		{
-			std::reverse(pos.begin(), pos.end());
+			std::reverse(pos.begin(), pos.end()); // this is so that coordinates are always number first
 		}
 		// }
 		//}
@@ -95,7 +95,7 @@ OUTPUTS: Position (String)
 Depends on: None
 turns a given pair of coordinates to a human readable form.
 */
-string Coord::getPosUI(int posX, int posY, Coord&c)
+string Coord::getPosUI(int posX, int posY)
 {
 	string output;
 	const string posRef = "ABCDEFGHIJ";
@@ -106,9 +106,7 @@ string Coord::getPosUI(int posX, int posY, Coord&c)
 	output += std::to_string(posX);
 	output += posRef[posY];
 	cout << output << endl;
-	if (c._isValid) 
-	{
 		return output;
-	}
-	return "Error";
+	
+	
 }

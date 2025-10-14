@@ -7,24 +7,23 @@
 #include <set>
 #include <map>
 using namespace std;
-//GameBoard handles internal state information that the player doesn't see
-// Next: Move prepareDisplayBoard, addShips, displayBoard, and _gameState to the Player class
+/*Note: GameBoard technically handles both a player's view of their ships AND their view of the opponent
+Each instance Player only needs one instance of GameBoard, thanks to this feature
+ */
 class GameBoard
 {
 public:
-	GameBoard(vector<Ship>& allShips, string boardID);
-	void prepareDisplayBoard(Player* opponent);
-	void addShips(vector<Ship>& allShips);
-	static bool drawBoard(vector<Ship>& allShips, GameBoard& g, Player* opponent = NULL);
-	vector<Coord> getAllOccupiedSpaces();
-	string getBoardID();
-	int setAllShips(vector<Ship> ships);
-	vector<string> getLocalGameState();
-	vector<Ship> getAllShips();
+	GameBoard(vector<string> gameState);
+	static void drawPlayerData(Player data, Player* opponent);
+	void updateState(Player instanceToUpdate, Coord Position, char newStuff);
+	void drawState(bool addPosRefrence);
+	static void drawRawData(vector<string> rawData);
+	static string colorise(string input);
+
+		
 private:
-	vector<Ship> _allShips;
-	string _boardID;
-	Player _GB;
-	vector<Coord>_allOccupiedSpaces;
+	vector<string> _state;
+	
+	
 };
 

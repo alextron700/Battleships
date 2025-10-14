@@ -7,14 +7,20 @@
 // represents a ship on a GameBoard.
 using namespace std;
 
+enum Facing
+{
+	Horizontal,
+	Vertical
+};
+
 class Ship
 {
 public:
-	Ship(string type, int posX, int posY, bool facing);
-	
+	Ship(string type, int posX, int posY, Facing facing);
+	Ship() { _type = "Error", _posX = -1, _posY = -1, _facing = Horizontal; };
 	int getXpos();
 	int getYpos();
-	bool getFacing();
+	Facing getFacing();
 	int getLength();
 	int getHealth();
 	bool hitCheck(int Xpos,int Ypos); 
@@ -37,7 +43,7 @@ private:
 	};
 	int _posX;
 	int _posY; // Defined by the back of the ship Y= Up/down, X= Left/right
-	bool _facing; // true = up/down false = left/right 
+	Facing _facing; // true = up/down false = left/right 
 	int _length;
 	int _health;
 };

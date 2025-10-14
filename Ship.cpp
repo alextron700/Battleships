@@ -3,6 +3,7 @@
 #include <vector>
 #include "Coord.h"
 #include <iostream>
+
 using namespace std;
 /*
  Ship
@@ -11,7 +12,7 @@ using namespace std;
  Depends on: None
  The Constructor for the Ship class
 */
-Ship::Ship(string type, int posX, int posY, bool facing)
+Ship::Ship(string type, int posX, int posY, Facing facing)
 {
   _type = type;
   _posX = posX;
@@ -50,7 +51,7 @@ Returns the facing of a Ship.
 true = Up/down
 false = Left/right
 */
-bool Ship::getFacing() {
+Facing Ship::getFacing() {
 	return _facing; //
 }
 /*
@@ -116,10 +117,10 @@ bool Ship::hitCheck(int posX, int posY)
 {
 	int shipX = getXpos();
 	int shipY = getYpos();
-	bool shipF = getFacing();
+	Facing shipF = getFacing();
 	int shipL = getLength();
 	int shipH = getHealth();
-	if (!shipF)
+	if (shipF == Vertical)
 	{
 		if (shipX - posX <= shipL && shipX >= posX && shipY == posY) {
 			return true;
@@ -133,6 +134,16 @@ bool Ship::hitCheck(int posX, int posY)
 	}
 	return false;
 }
+/*
+hit()
+inputs: posX (int) posY(int)
+outputs: int
+determines if the given shot is a hit on a ship
+returns -1 for a miss
+returns 0 for a hit on a sunk ship
+returns anything else for the remaining HP of a ship.
+Automatically deducts HP.
+*/
 int Ship::hit(int posX, int posY) 
 {
 	bool isHit = hitCheck(posX, posY);
@@ -164,7 +175,7 @@ std::vector<Coord> Ship::getOccupiedCoords()
 	for (int i = 0; i < _length; i++)
 	{
 
-		if (_facing)
+		if (_facing == Horizontal)
 		{
 
 			output.push_back(Coord(_posX, _posY - i));
@@ -212,7 +223,7 @@ bool Ship::isValid()
 	//check the edge of the board. Since ships get drawn from right to left, there is no need to check
 	// the right edge. Position validation handles the right edge ( I.E, it should'nt let you place ship
 	// that goes beyond the right edge anyway)
-	if (_posX - _length + 1 < 0 && _facing == false)
+	if (_posX - _length + 1 < 0 && _facing == Vertical)
 	{
 		return false;
 	}
@@ -220,7 +231,7 @@ bool Ship::isValid()
 	// check the top edge of the board. Since ships get drawn from bottom to top, there is no need to check
 	// the bottom edge. Position Validation also handles the bottom edge. It shouldn't be possible to have
 	// ships beyond the bottom edge anyway.
-	if (_posY - _length + 1 < 0 && _facing == true)
+	if (_posY - _length + 1 < 0 && _facing == Horizontal)
 	{
 		return false;
 	}
@@ -236,24 +247,12 @@ bool Ship::isValid()
 }
 bool Ship::validateShips(vector<Ship> allShips)
 {
-	
 	for (int i = 0; i < allShips.size(); i++)
 	{
-
-
 		if (!allShips[i].isValid())
 		{
-		
-			cout << "Looks like the password was invalid" << endl;
 			return false;
-			
-		}
-		
-		
+		}		
 	}
-
-
-
-		return !IntersectCheck(allShips);
-	
+	return !IntersectCheck(allShips);
 }

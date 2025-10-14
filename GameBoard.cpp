@@ -8,119 +8,167 @@
 #include <iostream>
 using namespace std;
 // GameBoard()
-// INPUTS: None (None)
+// INPUTS: gameState (vector<string>)
 // OUTPUTS: None (None)
 // Depends on: None
 // initialises game board
-GameBoard::GameBoard(vector<Ship>& allShips, string boardID) {
-	_boardID = boardID;
-	_GB = Player();
-	_allOccupiedSpaces = Player::calcAllOccupiedSpaces(allShips);
-}
-// these getPlayerHitIndex and getPlayerMissIndex are designed for an iterator to display a list
-// if an error occurs, you get the error coordinate
-string GameBoard::getBoardID() 
+GameBoard::GameBoard(vector<string> gameState) 
 {
-	return _boardID;
+	_state = gameState;
 }
-
-// getAIhits and getAIMisses return the whole list, since the AI is likely to need the whole list.
-
-vector<Coord> GameBoard::getAllOccupiedSpaces() 
+/*
+drawPlayerData
+Inputs: data (Player), opponent (Player*)
+Outputs: None (Null)
+Depends on: None()
+Decodes player data into a graphic. 
+*/
+void GameBoard::drawPlayerData(Player data, Player* opponent)
 {
-	return _allOccupiedSpaces;
+	data.drawHits();
+	vector<Ship> AllShips = data.getAllShips();
+	data.handleShips(AllShips, opponent);
+	data.displayBoard({"Null"});
 }
-//addPlayerShell() 
-//INPUTS: Pos (Coord), allShips(vector<Ship>&)
-//OUTPUTS: None (none)
-//Depends on: Coord class, ship class, getAllOccupiedSpaces
-//This automatically does hit checking, adding it to a list as appropriate
-
-// note: Depends on checkHit()
-void GameBoard::prepareDisplayBoard(Player* opponent)
-{	
-	if(opponent == NULL)
+void GameBoard::updateState(Player instanceToUpdate, Coord Position, char newStuff)
+{
+	instanceToUpdate.addAtPos(Position, newStuff);
+	_state[Position.getX()][Position.getY()] = newStuff;
+}
+/*
+* drawState()
+INPUTS: addPosReference (bool)
+OUTPUTS: None
+DEPENDS ON: None
+Draws whatever is in the state variable. if it is passed true,
+A reference for rows and columns as well.
+NOTE: This function assumes a 10 x 10 board or smaller. 
+A bigger board may lead to the Yref not quite fitting, and garbage values on the Xref
+*/
+void GameBoard::drawState(bool addPosReference = true)
+{
+	if (addPosReference)
+	{
+		cout << "ABCDEFGHIJ" << endl;
+	}
+	 string output;
+	for (int i = 0; i < _state.size(); i++)
+	{
+		if (addPosReference)
+		{
+			output += i + '0';
+		}
+		output += _state[i];
+		cout << output << endl;
+	}
+}
+/*
+drawRawData()
+Inputs: rawData
+Outputs: none
+Draws whatever it is given. Use with caution.
+*/
+void GameBoard::drawRawData(vector<string> rawData)
+{
+	if (rawData.size() <= 0)
 	{
 		return;
 	}
-	
-
-		// this requires repetition. We are indexing through lists of differing sizes.
-		for(int i = 0; i < opponent->getPlayerMisses().size(); i++)
-		{
-			_GB.addAtPos(Coord(opponent->getPlayerMisses()[i].getX(),opponent->getPlayerMisses()[i].getY()),'X');
-		}
-		for (int i = 0; i < opponent->getPlayerHits().size(); i++)
-		{
-			_GB.addAtPos(Coord(opponent->getPlayerHits()[i].getX(), opponent->getPlayerHits()[i].getY()), 'h');
-		}
-	
-	
-}
-void GameBoard::addShips(vector<Ship>& allShips)
-{
-	const map<string, char> hitRef = {
-		{"P",'p'},
-		{"S",'s'},
-		{"C",'c'},
-		{"B",'b'},
-		{"A",'a'}
-	};
-	vector<Coord> hitList;
-		hitList = _GB.getPlayerHits();
-	
-	for (int i = 0; i < allShips.size(); i++)
+	for (int i = 0; i < rawData.size(); i++)
 	{
-		vector<Coord> shipOccu = allShips[i].getOccupiedCoords();
-		
-		for (int j = 0; j < shipOccu.size(); j++) 
-		{
-			Coord CurrentCoord = shipOccu[j];
-			//cout <<"X"<< CurrentCoord.getX() <<"Y" << CurrentCoord.getY() <<"type" <<allShips[i].getType()<< endl;
-
-					if(_GB.getGameState()[CurrentCoord.getX()][CurrentCoord.getY()] == 'h')
-					{
-						_GB.addAtPos(Coord(CurrentCoord.getX(),CurrentCoord.getY()),hitRef.at(allShips[i].getType()));
-					}
-					else 
-					{
-						_GB.addAtPos(Coord(CurrentCoord.getX(), CurrentCoord.getY()), allShips[i].getType()[0]);
-					}
-			
-			
-		}
+		cout << rawData[i] << endl;
 	}
 }
 
-vector<Ship> GameBoard::getAllShips()
-{
-	return _allShips;
-}
 /*
 Inputs: allShips (vector<Ship>&)
 Outputs (Bool)
 Depends on: getOccupiedCoords()
 Checks if two or more ships occupy the same space
 */
-
-
-bool GameBoard::drawBoard(vector<Ship>& allShips, GameBoard& g, Player* opponent)
+string GameBoard:: colorise(string input)
 {
-	g.prepareDisplayBoard(opponent);
-	g.addShips(allShips);
-	if (opponent) 
+
+	bool hitclr = false;
+	bool unhitclr = false;
+	bool xclr = false;
+	bool oclr = false;
+	//bool declr = false;
+	input.insert(0, "\033[0;37;44m");
+	input.insert(input.size(), "\033[0m");
+	for (int i = 0; i < input.size(); i++)
 	{
-		opponent->displayBoard({"Null"});
-		return true;
+		switch (input[i])
+		{
+		//case '~':
+		//	if (hitclr or unhitclr or oclr or xclr)
+		//	{
+		//		input.insert(i, "\033[0;37;44m");
+		//		//declr = true;
+		//		unhitclr = false;
+		//		hitclr = false;
+		//		xclr = false;
+		//		oclr = false;
+		//		continue;
+
+        //   }
+		case 'X':
+			if (!xclr)
+			{
+				input.insert(i, "\033[0;31;44m");
+				xclr = true;
+				oclr = false;
+				unhitclr = false;
+				hitclr = false;
+				//declr = false;
+				continue;
+			}
+			break;
+		case 'O':
+			if (!oclr)
+			{
+				input.insert(i, "\033[0;37;44m");
+				oclr = true;
+				xclr = false;
+				unhitclr = false;
+				hitclr = false;
+				//declr = false;
+				continue;
+			}
+			break;
+		case 'P':
+		case 'S':
+		case 'C':
+		case 'B':
+		case 'A':
+			if (!unhitclr)
+			{
+				input.insert(i, "\033[0;90;44m");
+				unhitclr = true;
+				hitclr = false;
+				oclr = false;
+				xclr = false;
+				//declr = false;
+			}
+			break;
+		case 'p':
+		case 's':
+		case 'c':
+		case 'b':
+		case 'a':
+			if (!hitclr)
+			{
+				input.insert(i, "\033[1;4;5;7;91;40m");
+				hitclr = true;
+				unhitclr = false;
+				oclr = false;
+				xclr = false;
+				//declr = false;
+				continue;
+			}
+			break;
+		}
 	}
-	return false;
+	return input;
 }
-int GameBoard::setAllShips(vector<Ship> ships)
-{
-	_allShips = ships;
-	return -1;
-}
-vector<string> GameBoard::getLocalGameState()
-{
-	return _GB.getGameState();
-}
+

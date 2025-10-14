@@ -2,6 +2,7 @@
 #include <string>
 #include <algorithm>
 // represents a single X/Y position on a GameBoard
+
 using namespace std;
 class Coord
 {
@@ -10,7 +11,7 @@ public:
 	Coord(std::string pos);
 	int getX();
 	int getY();
-	static std::string getPosUI(int posX, int posY, Coord&c);
+	static std::string getPosUI(int posX, int posY);
 	bool getValid();
 	// this was an addition I did not expect I needed, I relied on artificial sources, due to not
 	// knowing how to handle the error this fixed. 
@@ -23,6 +24,16 @@ public:
 	bool operator==(const Coord& other) const {
 		return _posX == other._posX && _posY == other._posY;
 	}
+	Coord operator+(const Coord& other) const {
+		return Coord(this->_posX + other._posX, this->_posY + other._posY);
+	}
+	Coord operator-(const Coord& other)const {
+		return Coord(this->_posX - other._posX, this->_posY - other._posY);
+	}
+	//Direction operator*(const Direction& other)const too much fuss from the compiler.
+	//{
+	//	return Direction{ this->_posX + other.x,this->_posY + other.y };
+	//}
 private:
 	int _posX;
 	int _posY;
