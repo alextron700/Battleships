@@ -545,7 +545,7 @@ inputs: allShips (vector<Ship>)
 outputs: Player *(this)
 Calls the manual setup if the password system was skipped
 */
-Player Player::setupPlayer(vector<Ship>& allShips)
+bool Player::setupPlayer(vector<Ship>& allShips)
 {
 	
 	
@@ -559,10 +559,10 @@ Player Player::setupPlayer(vector<Ship>& allShips)
 	if (_allShips[0].getType() == "Error")
 	{
 		cout << "It looks like an error happened!" << endl;
-		_playerMisses.push_back(Coord(-1, -1)); // setup an error 
+		return false;
 		
 	}
-	return *(this);
+	return true;
 }
 // does what it says on the tin
 /*

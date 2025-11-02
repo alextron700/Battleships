@@ -25,15 +25,13 @@ int main()
 	string savedPassword;
 	Player POne = Player(allShips); // set up a player with an empty ship array
 	allShips = Player::handlePassword(); // attempt to populate with a password
-	POne.setupPlayer(allShips); // manual setup
-	if (POne.getPlayerMisses().size() > 0) 
-	{
-		if (POne.getPlayerMisses()[0] == Coord(-1, -1))
+	// manual setup
+		if (!POne.setupPlayer(allShips))
 		{
 			cout << "Oh no, a fatal error happened! x_x" << endl;
 			return -1;
 		}
-	}
+	
 		cout << "would you like to save your setup? (Enter == No | Any key, then Enter == Yes)." << endl;
 		getline(cin, savedPassword);
 	//P1AYS2BYC2CYB3DYA4EY

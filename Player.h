@@ -35,7 +35,7 @@ public:
 	vector<Coord>getAllOccupiedSpaces();
 	void handleShips(vector<Ship>& allShips, Player* opponent);
 	vector<string> getEnemyShipView();
-	Player setupPlayer(vector<Ship>& allShips);
+	bool setupPlayer(vector<Ship>& allShips);
 	Player initialiseOpponent();
 	virtual Coord TakeTurn(string PlayerID, Opponent o);
 	static int turnLoop(Player* POne, Opponent* o);
