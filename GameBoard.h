@@ -14,7 +14,7 @@ class GameBoard
 {
 public:
 	GameBoard(vector<string> gameState);
-	static void drawPlayerData(Player data, Player* opponent);
+	static void drawPlayerData(Player* data, Player* opponent);
 	void updateState(Player instanceToUpdate, Coord Position, char newStuff);
 	void drawState(bool addPosRefrence);
 	static void drawRawData(vector<string> rawData);

@@ -124,7 +124,7 @@ This is the primary function to call upon AI turn.
 */
 Coord Opponent::TakeTurn(string PlayerID, Player* p)
 {
-	
+	handleShips(this->getAllShips(),p);
 	int AIRand = rand() % 101;
 	vector<Coord> targets = p->getAllOccupiedSpaces();
 	Coord retVal = Coord(0, 0);

@@ -30,7 +30,7 @@ public:
 	void addAtPos(Coord pos, char thing);
 	void placeShips(vector<Ship> listOfShips);
 	int setAllShips(vector<Ship> ships);
-	static int determineWin(vector<Ship> p1Ships, vector<Ship> p2Ships);
+	static int determineWin(vector<Ship>& p1Ships, vector<Ship>& p2Ships);
 	vector<Ship>& getAllShips();
 	vector<Coord>getAllOccupiedSpaces();
 	void handleShips(vector<Ship>& allShips, Player* opponent);

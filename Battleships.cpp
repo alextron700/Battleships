@@ -38,7 +38,7 @@ int main()
 		getline(cin, savedPassword);
 	//P1AYS2BYC2CYB3DYA4EY
 	//POne.setAllShips(allShips);
-	GameBoard::drawPlayerData(POne,NULL);
+	GameBoard::drawPlayerData(&POne,NULL);
 	if (savedPassword.size() > 0)
 	{
 		string EP = POne.encodePassword();

@@ -59,7 +59,7 @@ vector<Coord> Player::getAllOccupiedSpaces()
 	return _allOccupiedSpaces;
 }
 // determines which side has won, if a win is even detected
-int Player::determineWin(vector<Ship> p1Ships, vector<Ship> p2Ships)
+int Player::determineWin(vector<Ship>& p1Ships, vector<Ship>& p2Ships)
 {
 	int playerHPsum = 0;
 	int AIHPsum = 0;
@@ -238,7 +238,7 @@ bool Player::coordIsUnique(Coord input)
 {
 	cout << "Begin "<<playerID<<" turn!" << endl;
 	cout << "Known information about Enemy:" << endl;
-	GameBoard::drawPlayerData(*(this), p);
+	GameBoard::drawPlayerData(this, p);
 	cout << "Pick a position to shoot:" << endl;
 	string playerShellInput;
 	getline(cin, playerShellInput);
@@ -597,7 +597,7 @@ Player Player::initialiseOpponent()
 }
 Coord Player::TakeTurn(string PlayerID, Opponent o)
 {
-	return PlayerShellUI(_allShips, "Player", &o);
+	return PlayerShellUI(o.getAllShips(), "Player", &o);
 }
 // the main game loop
 /*
