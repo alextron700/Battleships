@@ -587,7 +587,8 @@ Player Player::initialiseOpponent()
 	"A4FXB9JXS2IYP3BYC5CX",
 	"A4FYB9JYS2IXP3BXC5CY",
 	"P2DYS4FYC9JXB6HXA7FX",
-	"C2HXP4EYB8IXA7AYS0HX"
+	"C2HXP4EYB8IXA7AYS0HX",
+	"A4GXS7JYP2DYC8GXB6FX"
 	};
 	srand(time(0));
 	AIShips = Player::decodePassword(potentialPositions[rand() % potentialPositions.size()]);

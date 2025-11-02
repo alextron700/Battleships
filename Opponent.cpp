@@ -18,6 +18,7 @@ Opponent::Opponent(vector<Ship>& AIShips)
 	_doSmartSearch = false;
 	_doHook = false;
 	_cheatsAllowed = false;
+	_hasHook = false;
 	_SSIndex = 0;
 	_smartCheatIndex = 0;
 	_smartSearchPattern = {
@@ -183,7 +184,7 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 // I felt that the AI's "Hook" strategy should get it's own function, given it's complex nature.
 Coord Opponent::Hook(vector<Ship> AllShips, Player pInstance, Coord Pos)
 {
-	if (Pos == Coord(-1, -1))
+	if (_HookedShip.getType() != "Error" && Pos == Coord(-1, -1))
 	{
 		Pos = _HookedShip.getOccupiedCoords()[_HookIndex];
 	}
@@ -203,7 +204,7 @@ Coord Opponent::Hook(vector<Ship> AllShips, Player pInstance, Coord Pos)
 			
 		}
 	}
-	if (_hasHook && _HookedShip.getHealth() != 0)
+	if (_hasHook &&_HookedShip.getType() != "Error" && _HookedShip.getHealth() != 0)
 	{
 		_HookIndex = (_HookIndex + 1) % (_HookedShip.getLength());
 		if (_HookIndex + 1 == _HookedShip.getLength())
@@ -212,5 +213,9 @@ Coord Opponent::Hook(vector<Ship> AllShips, Player pInstance, Coord Pos)
 			_hasHook = false;
 		}
 	}
-	return _HookedShip.getOccupiedCoords()[_HookIndex];
+	if (_HookedShip.getType() != "Error")
+	{
+		return _HookedShip.getOccupiedCoords()[_HookIndex];
+	}
+	return Coord(9, 9); // return something, since this function needs something valid to return
 }
