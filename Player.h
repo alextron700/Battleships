@@ -38,7 +38,7 @@ public:
 	bool setupPlayer(vector<Ship>& allShips);
 	void initialiseOpponent();
 	virtual Coord TakeTurn(string PlayerID, Opponent* o);
-	static int turnLoop(Player* POne, Opponent* o);
+	static void turnLoop(Player* POne, Opponent* o);
 private:
 	vector<Coord> _playerHits; //Hits this instance of player made
 	vector<Coord> _playerMisses; //Misses this instance of player made

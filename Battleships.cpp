@@ -50,7 +50,7 @@ int main()
 	AI.handleShips(AIShips,&AI);
 	//AI.setAllShips(AIShips);
 	Player::turnLoop(&POne, &AI); // the main game
-	
+	return 0;
 	
 }
 

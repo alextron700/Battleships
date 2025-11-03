@@ -607,7 +607,7 @@ outputs: none
 depends on: none
 This loop is responsible for making the turn system work, and checking for victory every turn. 
 */
-int Player::turnLoop(Player* POne, Opponent* o)
+void Player::turnLoop(Player* POne, Opponent* o)
 {
 
 	bool isPlayerTurn = true;
@@ -617,12 +617,14 @@ int Player::turnLoop(Player* POne, Opponent* o)
 		if (windetect == -1)
 		{
 			cout << "AI Win!";
-			return 0;
+			return;
+			
 		}
 		if (windetect == 1)
 		{
 			cout << "Human Win!";
-			return 0;
+			return;
+		
 		}
 		if (isPlayerTurn)
 		{
