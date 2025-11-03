@@ -15,7 +15,7 @@ public:
       void setUpOpponent();
       Coord smartSearch();
       Coord TakeTurn(string PlayerID, Player* p);
-    Coord Hook(vector<Ship> AllShips, Player* pInstance, Coord Pos);
+    Coord Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos);
 private:
   //  int _difficulty;
     bool _doSmartSearch;

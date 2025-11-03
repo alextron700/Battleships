@@ -12,7 +12,7 @@ class Player
 {
 public:
 	Player(vector<Ship> allShips);
-	int  AddPlayerShell(Coord pos, vector<Ship>& allShips);
+	int  checkHit(Coord pos, vector<Ship>& allShips);
 	vector<Coord> getPlayerHits();
 	vector<Coord> getPlayerMisses();
 	void addHit(Coord pos);
@@ -36,7 +36,7 @@ public:
 	void handleShips(vector<Ship>& allShips, Player* opponent);
 	vector<string> getEnemyShipView();
 	bool setupPlayer(vector<Ship>& allShips);
-	Player initialiseOpponent();
+	void initialiseOpponent();
 	virtual Coord TakeTurn(string PlayerID, Opponent* o);
 	static int turnLoop(Player* POne, Opponent* o);
 private:

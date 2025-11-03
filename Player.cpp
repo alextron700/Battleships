@@ -122,12 +122,12 @@ void Player::addMiss(Coord pos)
 {
 	_playerMisses.push_back(pos);
 }
-//AddPLayerShell
+//checkHit
 //INPUTS: Pos (Coord), allShips(vector<Ship>&)
 //OUTPUTS: Bool
 // Depends on: calcAllOccupiedSpaces()
-// Automatically determines if a shell is a hit or miss, and puts it in the respective list
-int Player::AddPlayerShell(Coord Pos, vector<Ship>& allShips)
+// Automatically determines if a shell is a hit or miss, returning an index if it's a hit, or -1 if not
+int Player::checkHit(Coord Pos, vector<Ship>& allShips)
 {
 	int index = -1;
 	vector<Coord> OccupiedSpaces = calcAllOccupiedSpaces(allShips);
@@ -216,7 +216,7 @@ bool Player::coordIsUnique(Coord input)
 		//{ 
 		//	allShips[i].hit(shell.getX(), shell.getY());
 		//	cout << "Hit!" << endl;
-		//	AddPlayerShell(shell,allShips);
+		//	checkHit(shell,allShips);
 		//	if(allShips[i].getHealth() == 0)
 		//	{
 		//		cout << "Sank Opponent's " << convertShipID.at(allShips[i].getType()) << "!" <<endl;
@@ -231,7 +231,7 @@ bool Player::coordIsUnique(Coord input)
 		//else
 		//{
 		//	cout << "Miss!" << endl;
-		//	AddPlayerShell(shell, allShips);
+		//	checkHit(shell, allShips);
 		//	return -1;
 		//}
  Coord Player::PlayerShellUI(vector<Ship>& allShips, string playerID = "Undefined", Opponent* p = NULL)
@@ -243,7 +243,7 @@ bool Player::coordIsUnique(Coord input)
 	string playerShellInput;
 	getline(cin, playerShellInput);
 	Coord shell = Coord(playerShellInput);
-	int index = AddPlayerShell(shell, allShips);
+	int index = checkHit(shell, allShips);
 		if(coordIsUnique(shell) && shell.getValid())
 		{
 			if (index >= 0 ) 
@@ -571,7 +571,7 @@ inputs: none
 outputs: Opponent (Player)
 uses RNG to set up a computer-driven opponent.
 */
-Player Player::initialiseOpponent()
+void Player::initialiseOpponent()
 {
 	vector<Ship> AIShips = {};
 	const vector<string> potentialPositions = {
@@ -594,7 +594,6 @@ Player Player::initialiseOpponent()
 	AIShips = Player::decodePassword(potentialPositions[rand() % potentialPositions.size()]);
 	Player PTwo = Player(AIShips);
 	_allShips = AIShips;
-	return PTwo;
 }
 Coord Player::TakeTurn(string PlayerID, Opponent* o)
 {
@@ -611,7 +610,7 @@ This loop is responsible for making the turn system work, and checking for victo
 int Player::turnLoop(Player* POne, Opponent* o)
 {
 
-	bool GBTurn = true;
+	bool isPlayerTurn = true;
 	int windetect = 0;
 	while (true) { 
 		windetect = Player::determineWin(POne->getAllShips(), o->getAllShips());
@@ -625,7 +624,7 @@ int Player::turnLoop(Player* POne, Opponent* o)
 			cout << "Human Win!";
 			return 0;
 		}
-		if (GBTurn)
+		if (isPlayerTurn)
 		{
 			/*
 			* This while loop is delibrately weird.
@@ -638,7 +637,7 @@ int Player::turnLoop(Player* POne, Opponent* o)
 			{
 				cout << "Try Again!" << endl;
 			};
-			GBTurn = false;
+			isPlayerTurn = false;
 		}
 		else
 		{
@@ -674,7 +673,7 @@ int Player::turnLoop(Player* POne, Opponent* o)
 			
 			
 			o->TakeTurn("AI", POne);
-			GBTurn = true;
+			isPlayerTurn = true;
 
 		}
 

@@ -166,12 +166,12 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	{
 		retVal = smartSearch() + retVal;
 	}
-	if ((AddPlayerShell(retVal, p->getAllShips()) != -1 && _doHook) || _hasHook)
+	if ((checkHit(retVal, p->getAllShips()) != -1 && _doHook) || _hasHook)
 	{
 		retVal = Hook(p->getAllShips(), p, retVal);
 	}
 	handleShot:
-	if (AddPlayerShell(retVal, p->getAllShips()) != -1)
+	if (checkHit(retVal, p->getAllShips()) != -1)
 	{
 		addHit(retVal);
 		vector<Ship> PAllShips = p->getAllShips();
@@ -187,13 +187,21 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	return retVal;
 }
 // I felt that the AI's "Hook" strategy should get it's own function, given it's complex nature.
-Coord Opponent::Hook(vector<Ship> AllShips, Player* pInstance, Coord Pos)
+Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 {
-	if (_HookedShip.getType() != "Error" && Pos == Coord(-1, -1))
+	if (pInstance != NULL && Pos == Coord(-1, -1))
 	{
 		Pos = _HookedShip.getOccupiedCoords()[_HookIndex];
 	}
-	int PShipIndex = pInstance->AddPlayerShell(Pos, AllShips);
+	int PShipIndex;
+	if (pInstance != NULL)
+	{
+		 PShipIndex = pInstance->checkHit(Pos, AllShips);
+	}
+	else 
+	{
+		 PShipIndex = -1;
+	}
 	
 	if(PShipIndex != -1 && _hasHook == false)
 	{
@@ -208,8 +216,11 @@ Coord Opponent::Hook(vector<Ship> AllShips, Player* pInstance, Coord Pos)
 			}
 			
 		}
+	}else
+	{
+		_HookIndex = NULL;
 	}
-	if (_hasHook &&_HookedShip.getType() != "Error" && _HookedShip.getHealth() != 0)
+	if (_hasHook && _HookIndex != NULL && _HookedShip.getHealth() != 0)
 	{
 		_HookIndex = (_HookIndex + 1) % (_HookedShip.getLength());
 		if (_HookIndex + 1 == _HookedShip.getLength())
@@ -218,7 +229,7 @@ Coord Opponent::Hook(vector<Ship> AllShips, Player* pInstance, Coord Pos)
 			_hasHook = false;
 		}
 	}
-	if (_HookedShip.getType() != "Error")
+	if (pInstance != NULL)
 	{
 		return _HookedShip.getOccupiedCoords()[_HookIndex];
 	}
