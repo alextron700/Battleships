@@ -174,6 +174,11 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	if (AddPlayerShell(retVal, p->getAllShips()) != -1)
 	{
 		addHit(retVal);
+		vector<Ship> PAllShips = p->getAllShips();
+		for (int i = 0; i < PAllShips.size(); i++)
+		{
+			PAllShips[i].hit(retVal.getX(),retVal.getY());
+		}
 	}
 	else {
 		addMiss(retVal);
