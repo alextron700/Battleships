@@ -336,7 +336,7 @@ vector<Ship> Player::handlePassword()
 	vector<Ship> allShips;
 	while (isEnteringPassword) {
 		cout << "A password allows you to save and load a previous board layout. type a password below to use one, then ENTER to confirm, OR just press ENTER to skip." << endl;
-		cout << "if there are any spaces before, after or anywhere in the password, make sure to remove them before continuing" << endl;
+		cout << "A password should only contain numbers and uppercase letters. Enter Here:" << endl;
 		allShips = {};
 
 		getline(cin, password);
@@ -377,12 +377,10 @@ vector<Ship> Player::playerUI()
 	const vector<string> Ships = { "P (Patrol),", "S (Submarine),","C (Cruiser),","B (Battleship),","A (Carrier)" };
 	while (allShips.size() < 5) {
 		string pos;
-		std::cout << "Begin by positioning your ships, with an X position (0-9), and a Y position (A-J)" << endl;
-		std::cout << "Examples Of Valid Coordinates are: d5, E9, 2B, 0a. Examples of Invalid Coordinates: 2k, 12b, b-1, -3B" << endl;
-		std::cout << "This is what your board looks like: (by the way, you should enter a coordinate now)" << endl;
-		std::cout << "Note: The coordinate you input is the Bottom-left-most position of each ship" << endl;
 		placeShips(allShips);
 		displayBoard({"Null"});
+		std::cout << "Please type the bottom-right most coordinate of your ship. It should have a digit (0-9), and a letter (A-J) OR (a-j), for a total of 2 characters." << std::endl;
+		std::cout << "Examples of valid coordinates: A3, a3, 3a, 3A. Examples of invalid coordinates: A-3, -3a, K0." << std::endl;
 		std::getline(cin, pos);
 		Coord shipPos = Coord(pos);
 		if (!shipPos.getValid()) {
@@ -403,8 +401,8 @@ vector<Ship> Player::playerUI()
 			std::cout << "The only valid inputs are: | or -" << endl;
 			continue;
 		} 
-		std::cout << " I won't let you proceed until you've place all five ships. If you try to place two of the same ship, I won't let you. Note: You MUST use CAPITALS." << endl;
 		std::cout << "Ship lengths: Patrol: 2 Submarine: Length 3 Cruiser: 3 Battleship: 4 cArrier: 5." << endl;
+		std::cout << "Please use UPPERCASE letters." << std::endl;
 		std::cout << "Ships yet to be placed: ";
 		
 		for (int i = 0; i < Ships.size(); i++)
@@ -445,7 +443,8 @@ vector<Ship> Player::playerUI()
 	}
 	// reset the player's view of their own board, so that main can write the state.
 	//_ownShipView = { "~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~","~~~~~~~~~~" };
-	std::cout << "good news: your setup is valid! I will draw your layout now." << endl;
+	std::cout << "Here's what your board looks like:" << endl;
+	displayBoard({ "Null" });
 	return allShips;
 }
 /*

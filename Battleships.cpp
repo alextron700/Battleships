@@ -40,7 +40,7 @@ int main()
 	if (savedPassword.size() > 0)
 	{
 		string EP = POne.encodePassword();
-		cout << "Your password is: " << EP << endl;
+		cout << "If you'd like to reuse this board layout, enter this password: " << EP << endl;
 	}
 	// Set up the AI opponent
 	vector<Ship> AIShips;
