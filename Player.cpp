@@ -234,7 +234,7 @@ bool Player::coordIsUnique(Coord input)
 		//	checkHit(shell, allShips);
 		//	return -1;
 		//}
- Coord Player::PlayerShellUI(vector<Ship>& allShips, string playerID = "Undefined", Opponent* p = NULL)
+ bool Player::PlayerShellUI(vector<Ship>& allShips, string playerID = "Undefined", Opponent* p = NULL)
 {
 	cout << "Begin "<<playerID<<" turn!" << endl;
 	cout << "Known information about Enemy:" << endl;
@@ -254,6 +254,30 @@ bool Player::coordIsUnique(Coord input)
 					if (find(Temp.begin(), Temp.end(), shell) != Temp.end())
 					{
 						allShips[j].hit(shell.getX(), shell.getY());
+						if (allShips[j].getHealth() <= 0)
+						{
+							cout << "You sank the enemy's ";
+							switch (allShips[j].getType()[0])
+							{
+							case 'A':
+								cout << "Carrier!" << endl;
+								break;
+							case 'B':
+								cout << "Battleship!" << endl;
+								break;
+							case 'C':
+								cout << "Cruiser!" << endl;
+								break;
+							case 'S':
+								cout << "Submarine!" << endl;
+								break;
+							case 'P':
+								cout << "Patrol!" << endl;
+								break;
+							default:
+								cout << "Undefined!" << endl;
+							}
+						}
 						break;
 					}
 				}
@@ -267,10 +291,10 @@ bool Player::coordIsUnique(Coord input)
 				addMiss(shell);
 				
 			}
-			return shell;
+			return true;
 		}else
 		{
-			return Coord(-1, -1);
+			return false;
 		}
 	
 	
@@ -335,7 +359,8 @@ vector<Ship> Player::handlePassword()
 	bool isEnteringPassword = true;
 	vector<Ship> allShips;
 	while (isEnteringPassword) {
-		cout << "A password allows you to save and load a previous board layout. type a password below to use one, then ENTER to confirm, OR just press ENTER to skip." << endl;
+		cout << "To start, We will position your ships. If you have saved a board as a password, enter it now to reuse that layout." << endl;
+		cout << "Use [ENTER] to confirm. To skip, don't type anything, simply press [ENTER]" << endl;
 		cout << "A password should only contain numbers and uppercase letters. Enter Here:" << endl;
 		allShips = {};
 
@@ -350,7 +375,7 @@ vector<Ship> Player::handlePassword()
 			}
 			else
 			{
-				cout << "Bad Password!" << endl;
+				cout << "Looks like you might have mistyped your password! Try again." << endl;
 				continue;
 			}
 		}
@@ -468,13 +493,13 @@ void Player::displayBoard(vector<string> gameStateInstance = {"Null"})
 		out += " ";
 		if(gameStateInstance != vector<string>{"Null"})
 		{
-			out += gameStateInstance[i];
+			out += GameBoard::colorise(gameStateInstance[i]);
 		}
 		else 
 		{
-			out += _ownShipView[i];
+			out += GameBoard::colorise(_ownShipView[i]);
 		}
-		cout << GameBoard::colorise(out) << endl;
+		cout << out << endl;
 	}
 }
 /*
@@ -594,7 +619,7 @@ void Player::initialiseOpponent()
 	Player PTwo = Player(AIShips);
 	_allShips = AIShips;
 }
-Coord Player::TakeTurn(string PlayerID, Opponent* o)
+bool Player::TakeTurn(string PlayerID, Opponent* o)
 {
 	return PlayerShellUI(o->getAllShips(), "Player", o);
 }
@@ -634,7 +659,7 @@ void Player::turnLoop(Player* POne, Opponent* o)
 			* Because the conditon is evaluated repeatedly, which would require executing the function,
 			* that therefore means we can let a player try again, by evaluating the conditon on each loop.
 			*/
-			while (POne->TakeTurn("Player", o ) == Coord(-1, -1))
+			while (POne->TakeTurn("Player", o ) == false)
 			{
 				cout << "Try Again!" << endl;
 			};

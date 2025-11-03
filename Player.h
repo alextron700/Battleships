@@ -19,7 +19,7 @@ public:
 	void addMiss(Coord pos);
 	static vector<Coord> calcAllOccupiedSpaces(vector<Ship>& allShips);
 	void drawHits();
-	Coord PlayerShellUI(vector<Ship>& allShips, string playerID, Opponent* p);
+	bool PlayerShellUI(vector<Ship>& allShips, string playerID, Opponent* p);
 	bool coordIsUnique(Coord input);
 	vector<Ship> playerUI();
 	string encodePassword();
@@ -37,7 +37,7 @@ public:
 	vector<string> getEnemyShipView();
 	bool setupPlayer(vector<Ship>& allShips);
 	void initialiseOpponent();
-	virtual Coord TakeTurn(string PlayerID, Opponent* o);
+	virtual bool TakeTurn(string PlayerID, Opponent* o);
 	static void turnLoop(Player* POne, Opponent* o);
 private:
 	vector<Coord> _playerHits; //Hits this instance of player made
