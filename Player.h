@@ -29,7 +29,7 @@ public:
 	vector<string> getOwnShipView();
 	void addAtPos(Coord pos, char thing);
 	void placeShips(vector<Ship> listOfShips);
-	int setAllShips(vector<Ship> ships);
+	int setAllShips(vector<Ship>* ships);
 	static int determineWin(vector<Ship>& p1Ships, vector<Ship>& p2Ships);
 	vector<Ship>& getAllShips();
 	vector<Coord>getAllOccupiedSpaces();
@@ -37,7 +37,7 @@ public:
 	vector<string> getEnemyShipView();
 	bool setupPlayer(vector<Ship>& allShips);
 	Player initialiseOpponent();
-	virtual Coord TakeTurn(string PlayerID, Opponent o);
+	virtual Coord TakeTurn(string PlayerID, Opponent* o);
 	static int turnLoop(Player* POne, Opponent* o);
 private:
 	vector<Coord> _playerHits; //Hits this instance of player made

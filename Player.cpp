@@ -193,9 +193,9 @@ void Player::drawHits()
 		cout << i << GameBoard::colorise(_enemyShipView[i])  << endl;
 	}
 }
-int Player::setAllShips(vector<Ship> ships)
+int Player::setAllShips(vector<Ship>* ships)
 {
-	_allShips = ships;
+	_allShips = *(ships);
 	_allOccupiedSpaces = calcAllOccupiedSpaces(_allShips);
 	return -1;
 }
@@ -596,9 +596,9 @@ Player Player::initialiseOpponent()
 	_allShips = AIShips;
 	return PTwo;
 }
-Coord Player::TakeTurn(string PlayerID, Opponent o)
+Coord Player::TakeTurn(string PlayerID, Opponent* o)
 {
-	return PlayerShellUI(o.getAllShips(), "Player", &o);
+	return PlayerShellUI(o->getAllShips(), "Player", o);
 }
 // the main game loop
 /*
@@ -634,7 +634,7 @@ int Player::turnLoop(Player* POne, Opponent* o)
 			* Because the conditon is evaluated repeatedly, which would require executing the function,
 			* that therefore means we can let a player try again, by evaluating the conditon on each loop.
 			*/
-			while (POne->TakeTurn("Player", *(o) ) == Coord(-1, -1))
+			while (POne->TakeTurn("Player", o ) == Coord(-1, -1))
 			{
 				cout << "Try Again!" << endl;
 			};

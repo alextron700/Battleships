@@ -168,7 +168,7 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	}
 	if ((AddPlayerShell(retVal, p->getAllShips()) != -1 && _doHook) || _hasHook)
 	{
-		retVal = Hook(p->getAllShips(), *(p), retVal);
+		retVal = Hook(p->getAllShips(), p, retVal);
 	}
 	handleShot:
 	if (AddPlayerShell(retVal, p->getAllShips()) != -1)
@@ -187,13 +187,13 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	return retVal;
 }
 // I felt that the AI's "Hook" strategy should get it's own function, given it's complex nature.
-Coord Opponent::Hook(vector<Ship> AllShips, Player pInstance, Coord Pos)
+Coord Opponent::Hook(vector<Ship> AllShips, Player* pInstance, Coord Pos)
 {
 	if (_HookedShip.getType() != "Error" && Pos == Coord(-1, -1))
 	{
 		Pos = _HookedShip.getOccupiedCoords()[_HookIndex];
 	}
-	int PShipIndex = pInstance.AddPlayerShell(Pos, AllShips);
+	int PShipIndex = pInstance->AddPlayerShell(Pos, AllShips);
 	
 	if(PShipIndex != -1 && _hasHook == false)
 	{
