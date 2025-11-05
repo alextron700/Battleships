@@ -123,11 +123,11 @@ Coord Opponent::smartSearch()
 * DEPENDS ON: NONE
 This is the primary function to call upon AI turn.
 */
-Coord Opponent::TakeTurn(string PlayerID, Player* p)
+Coord Opponent::TakeTurn(string PlayerID, Player& p)
 {
-	handleShips(this->getAllShips(),p);
+	handleShips(this->getAllShips(),&p);
 	int AIRand = rand() % 101;
-	vector<Coord> targets = p->getAllOccupiedSpaces();
+	vector<Coord> targets = p.getAllOccupiedSpaces();
 	Coord retVal = Coord(0, 0);
 	if (_cheatsAllowed && AIRand >= 25 && !_doSmartSearch)
 	{
@@ -156,7 +156,8 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 		{
 			//_smartCheatIndex++;
 			retVal = targets[_smartCheatIndex++];
-			goto handleShot;
+			registerHit(p, retVal);
+			return retVal;
 		}
 	}
 	if (!_doSmartSearch && ! _hasHook)
@@ -166,37 +167,40 @@ Coord Opponent::TakeTurn(string PlayerID, Player* p)
 	{
 		retVal = smartSearch() + retVal;
 	}
-	if ((checkHit(retVal, p->getAllShips()) != -1 && _doHook) || _hasHook)
+	if ((p.checkHit(retVal) && _doHook) || _hasHook)
 	{
-		retVal = Hook(p->getAllShips(), p, retVal);
+		retVal = Hook(p.getAllShips(), &p, retVal);
 	}
-	handleShot:
-	if (checkHit(retVal, p->getAllShips()) != -1)
+	registerHit(p, retVal);
+	std::cout <<"the Computer is aiming at: "<< Coord::getPosUI(retVal.getX(), retVal.getY()) << endl;
+	return retVal;
+}
+void Opponent::registerHit(Player& p, Coord retVal)
+{
+	if (p.checkHit(retVal))
 	{
 		addHit(retVal);
-		vector<Ship> PAllShips = p->getAllShips();
+		vector<Ship> PAllShips = p.getAllShips();
 		for (int i = 0; i < PAllShips.size(); i++)
 		{
-			PAllShips[i].hit(retVal.getX(),retVal.getY());
+			PAllShips[i].hit(retVal.getX(), retVal.getY());
 		}
 	}
 	else {
 		addMiss(retVal);
 	}
-	std::cout <<"the Computer is aiming at: "<< Coord::getPosUI(retVal.getX(), retVal.getY()) << endl;
-	return retVal;
 }
 // I felt that the AI's "Hook" strategy should get it's own function, given it's complex nature.
 Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 {
 	if (pInstance != NULL && Pos == Coord(-1, -1))
 	{
-		Pos = _HookedShip.getOccupiedCoords()[_HookIndex];
+		Pos = _HookedShip->getOccupiedCoords()[_HookIndex];
 	}
 	int PShipIndex;
 	if (pInstance != NULL)
 	{
-		 PShipIndex = pInstance->checkHit(Pos, AllShips);
+		 PShipIndex = pInstance->checkHit(Pos);
 	}
 	else 
 	{
@@ -210,7 +214,7 @@ Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 			if(AllShips[i].hitCheck(Pos.getX(),Pos.getY()))
 			{
 				vector<Coord> occupiedSpaces = AllShips[i].getOccupiedCoords();
-				_HookedShip = AllShips[i];
+				_HookedShip = &AllShips[i];
 				_HookIndex = find(occupiedSpaces.begin(), occupiedSpaces.end(), Pos) - occupiedSpaces.begin();
 				_hasHook = true;
 			}
@@ -218,12 +222,12 @@ Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 		}
 	}else
 	{
-		_HookIndex = NULL;
+		_HookIndex = -1;
 	}
-	if (_hasHook && _HookIndex != NULL && _HookedShip.getHealth() != 0)
+	if (_hasHook && _HookIndex != -1 && _HookedShip->getHealth() != 0)
 	{
-		_HookIndex = (_HookIndex + 1) % (_HookedShip.getLength());
-		if (_HookIndex + 1 == _HookedShip.getLength())
+		_HookIndex = (_HookIndex + 1) % (_HookedShip->getLength());
+		if (_HookIndex + 1 == _HookedShip->getLength())
 		{
 			_HookIndex = 0;
 			_hasHook = false;
@@ -231,7 +235,7 @@ Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 	}
 	if (pInstance != NULL)
 	{
-		return _HookedShip.getOccupiedCoords()[_HookIndex];
+		return _HookedShip->getOccupiedCoords()[_HookIndex];
 	}
 	return Coord(9, 9); // return something, since this function needs something valid to return
 }

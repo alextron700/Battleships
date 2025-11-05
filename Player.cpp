@@ -127,10 +127,10 @@ void Player::addMiss(Coord pos)
 //OUTPUTS: Bool
 // Depends on: calcAllOccupiedSpaces()
 // Automatically determines if a shell is a hit or miss, returning an index if it's a hit, or -1 if not
-int Player::checkHit(Coord Pos, vector<Ship>& allShips)
+bool Player::checkHit(Coord Pos)
 {
 	int index = -1;
-	vector<Coord> OccupiedSpaces = calcAllOccupiedSpaces(allShips);
+	vector<Coord> OccupiedSpaces = calcAllOccupiedSpaces(_allShips);
 	for (int i = 0; i < OccupiedSpaces.size(); i++)
 	{
 		if (OccupiedSpaces[i] == Pos)
@@ -140,20 +140,14 @@ int Player::checkHit(Coord Pos, vector<Ship>& allShips)
 		}
 	}
 	_allOccupiedSpaces = OccupiedSpaces;
-	if (index >= 0)
-	{
-
-		//_playerHits.push_back(Pos);
-		return index;
-
-	}
 
 		//_playerMisses.push_back(Pos);
 
-
-	
-	return index;
-
+	if (index != -1)
+	{
+		return true;
+	}
+	return false;
 }
 // getPlayerHits and getPlayerMisses
 // INPUTS: NONE
@@ -243,10 +237,10 @@ bool Player::coordIsUnique(Coord input)
 	string playerShellInput;
 	getline(cin, playerShellInput);
 	Coord shell = Coord(playerShellInput);
-	int index = checkHit(shell, allShips);
+	bool index = p->checkHit(shell);
 		if(coordIsUnique(shell) && shell.getValid())
 		{
-			if (index >= 0 ) 
+			if (index) 
 			{
 				for (int j = 0; j < allShips.size(); j++)
 				{
@@ -275,8 +269,8 @@ bool Player::coordIsUnique(Coord input)
 								cout << "Patrol!" << endl;
 								break;
 							default:
-								cout << "Undefined!" << endl;
-							}
+								cout << ""<<endl;
+							};
 						}
 						break;
 					}
@@ -569,16 +563,13 @@ inputs: allShips (vector<Ship>)
 outputs: Player *(this)
 Calls the manual setup if the password system was skipped
 */
-bool Player::setupPlayer(vector<Ship>& allShips)
+bool Player::setupPlayer()
 {
 	
 	
-	if (allShips.size() <= 0)
+	if (_allShips.size() <= 0)
 	{
 		_allShips = playerUI();
-	}else
-	{
-		_allShips = allShips;
 	}
 	if (_allShips[0].getType() == "Error")
 	{
@@ -616,7 +607,6 @@ void Player::initialiseOpponent()
 	};
 	srand(time(0));
 	AIShips = Player::decodePassword(potentialPositions[rand() % potentialPositions.size()]);
-	Player PTwo = Player(AIShips);
 	_allShips = AIShips;
 }
 bool Player::TakeTurn(string PlayerID, Opponent* o)
@@ -637,19 +627,7 @@ void Player::turnLoop(Player* POne, Opponent* o)
 	bool isPlayerTurn = true;
 	int windetect = 0;
 	while (true) { 
-		windetect = Player::determineWin(POne->getAllShips(), o->getAllShips());
-		if (windetect == -1)
-		{
-			cout << "AI Win!";
-			return;
-			
-		}
-		if (windetect == 1)
-		{
-			cout << "Human Win!";
-			return;
 		
-		}
 		if (isPlayerTurn)
 		{
 			/*
@@ -698,8 +676,21 @@ void Player::turnLoop(Player* POne, Opponent* o)
 			*/
 			
 			
-			o->TakeTurn("AI", POne);
+			o->TakeTurn("AI", *POne);
 			isPlayerTurn = true;
+
+		}
+		windetect = Player::determineWin(POne->getAllShips(), o->getAllShips());
+		if (windetect == -1)
+		{
+			cout << "AI Win!";
+			return;
+
+		}
+		if (windetect == 1)
+		{
+			cout << "Human Win!";
+			return;
 
 		}
 

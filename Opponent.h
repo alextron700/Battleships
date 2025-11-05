@@ -14,7 +14,8 @@ public:
     Opponent(vector<Ship>& AIShips);
       void setUpOpponent();
       Coord smartSearch();
-      Coord TakeTurn(string PlayerID, Player* p);
+      Coord TakeTurn(string PlayerID, Player& p);
+      void registerHit(Player& p, Coord retVal);
     Coord Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos);
 private:
   //  int _difficulty;
@@ -26,7 +27,7 @@ private:
     vector<Direction>  _smartSearchOffsets;
     Coord _lastSSCoord;
     int _SSIndex;
-    Ship _HookedShip;
+    Ship* _HookedShip;
     int _HookIndex;
     int _smartCheatIndex;
 };

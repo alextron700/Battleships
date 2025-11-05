@@ -21,12 +21,12 @@ int main()
 {
 	std::cout << ansi_red << "Welcome to Battleships." << ansi_clear << endl;
 	// initialise palyer variables
-	vector<Ship>allShips = {};
+	//vector<Ship>allShips = {};
 	string savedPassword;
-	Player POne = Player(allShips); // set up a player with an empty ship array
-	allShips = Player::handlePassword(); // attempt to populate with a password
+	Player POne = Player(Player::handlePassword()); // set up a player with an empty ship array
+	 // attempt to populate with a password
 	// manual setup
-		if (!POne.setupPlayer(allShips))
+		if (!POne.setupPlayer())
 		{
 			cout << "Oh no, a fatal error happened! x_x" << endl;
 			return -1;
