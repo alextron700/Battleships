@@ -179,11 +179,13 @@ void Opponent::registerHit(Player& p, Coord retVal)
 {
 	if (p.checkHit(retVal))
 	{
-		addHit(retVal);
-		vector<Ship> PAllShips = p.getAllShips();
+		vector<Ship>& PAllShips = p.getAllShips();
 		for (int i = 0; i < PAllShips.size(); i++)
 		{
-			PAllShips[i].hit(retVal.getX(), retVal.getY());
+			if (PAllShips[i].hit(retVal.getX(), retVal.getY()) != -1)
+			{
+				addHit(retVal);
+			}
 		}
 	}
 	else {
@@ -193,20 +195,15 @@ void Opponent::registerHit(Player& p, Coord retVal)
 // I felt that the AI's "Hook" strategy should get it's own function, given it's complex nature.
 Coord Opponent::Hook(vector<Ship>& AllShips, Player* pInstance, Coord Pos)
 {
-	if (pInstance != NULL && Pos == Coord(-1, -1))
+	if (_HookedShip != NULL && Pos == Coord(-1, -1))
 	{
 		Pos = _HookedShip->getOccupiedCoords()[_HookIndex];
 	}
-	int PShipIndex;
+	int PShipIndex = -1;
 	if (pInstance != NULL)
 	{
 		 PShipIndex = pInstance->checkHit(Pos);
 	}
-	else 
-	{
-		 PShipIndex = -1;
-	}
-	
 	if(PShipIndex != -1 && _hasHook == false)
 	{
 		for (int i = 0; i < AllShips.size(); i++)
